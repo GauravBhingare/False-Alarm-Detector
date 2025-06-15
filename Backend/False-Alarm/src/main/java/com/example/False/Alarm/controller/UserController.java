@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -100,11 +102,21 @@ public class UserController {
 
     @GetMapping("/invites/sent/{senderUserId}")
     public ResponseEntity<List<User>> getSentInvites(@PathVariable String senderUserId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        if(!user.getUsername().equals(senderUserId)){
+            return ResponseEntity.ok(List.of());
+        }
         return ResponseEntity.ok(userService.getSentInvites(senderUserId));
     }
 
     @GetMapping("/invites/received/{receiverUserId}")
     public ResponseEntity<List<User>> getReceivedInvites(@PathVariable String receiverUserId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        if(!user.getUsername().equals(receiverUserId)){
+            return ResponseEntity.ok(List.of());
+        }
         return ResponseEntity.ok(userService.getReceivedInvites(receiverUserId));
     }
 
